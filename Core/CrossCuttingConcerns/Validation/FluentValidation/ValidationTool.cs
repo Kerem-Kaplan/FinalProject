@@ -17,6 +17,7 @@ namespace Core.CrossCuttingConcerns.Validation.FluentValidation
             {
                 throw new ValidationException(result.Errors);
             }
+            
         }
     }
 }
