@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Business.BusinessAspect.Autofac;
 using Business.CCs;
 using Core.Utilities.Business;
 
@@ -24,13 +25,15 @@ namespace Business.Concrete
         IProductDal _productDal;
         ICategoryService _categoryService;
 
-        //bir entity manager kensisi hariç başka DAL enjekte edemez!!!!
+        //bir entity manager kendisi hariç başka DAL enjekte edemez!!!!
         public ProductManager(IProductDal productDal, ICategoryService categoryService)
         {
             _productDal = productDal;
             _categoryService = categoryService;
         }
 
+        //Claim
+        [SecuredOperation("product.add,admin")]
         [ValidationAspect(typeof(ProductValidator))] //validation
         public IResult Add(Product product)
         {
