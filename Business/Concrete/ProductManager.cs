@@ -17,6 +17,9 @@ using System.Threading.Tasks;
 using Business.BusinessAspect.Autofac;
 using Business.CCs;
 using Core.Utilities.Business;
+using Core.Aspect.Autofac.Caching;
+using Core.Aspect.Autofac.Performance;
+using Core.Aspect.Autofac.Transaction;
 
 namespace Business.Concrete
 {
@@ -35,6 +38,7 @@ namespace Business.Concrete
         //Claim
         [SecuredOperation("product.add,admin")]
         [ValidationAspect(typeof(ProductValidator))] //validation
+        [CacheRemoveAspect("IProductService.Get")]
         public IResult Add(Product product)
         {
             IResult result = BusinessRules.Run(CheckIfProductNameExists(product.ProductName),
@@ -51,6 +55,7 @@ namespace Business.Concrete
 
         }
 
+        [CacheAspect] //key,value
         public IDataResult<List<Product>> GetAll()
         {
 
@@ -63,6 +68,7 @@ namespace Business.Concrete
             return new SuccessDataResult<List<Product>>(_productDal.GetAll(p => p.CategoryID == id));
         }
 
+        [CacheAspect]
         public IDataResult<Product> GetById(int productId)
         {
             return new SuccessDataResult<Product>(_productDal.Get(p => p.ProductID == productId));
@@ -80,8 +86,14 @@ namespace Business.Concrete
         }
 
         [ValidationAspect(typeof(ProductValidator))]
+        [CacheRemoveAspect("IProductService.Get")]
         public IResult Update(Product product)
         {
+            var result = _productDal.GetAll(p => p.CategoryID == product.CategoryID).Count;
+            if (result >= 15)
+            {
+                return new ErrorResult(Messages.ProductCountOfCategoryError);
+            }
             throw new NotImplementedException();
         }
 
@@ -118,6 +130,19 @@ namespace Business.Concrete
             }
 
             return new SuccessResult();
+        }
+
+        [TransactionScopeAspect]
+        public IResult AddTransactionalTest(Product product)
+        {
+            Add(product);
+            if (product.UnitPrice < 10)
+            {
+                throw new Exception("");
+            }
+
+            Add(product);
+            return null;
         }
     }
 }
