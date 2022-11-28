@@ -23,7 +23,7 @@ namespace Business.Constants
         public static string UserNotFound="Kullanıcı bulunamadı!";
         public static string PasswordError="Hatalı şifre!";
         public static string SuccessfulLogin="Giriş başarılı!";
-        public static string UserAlreadyExists="";
-        public static string AccessTokenCreated="";
+        public static string UserAlreadyExists="Kullanıcı Mevcut";
+        public static string AccessTokenCreated="Token Oluşturuldu";
     }
 }
